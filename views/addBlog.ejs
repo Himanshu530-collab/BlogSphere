@@ -7,6 +7,8 @@
 <body>
     <%- include('./partials/nav') %>
     <div class="container mt-3">
+        <h1>Add a New Blog</h1>
+
         <form action="/blog/add-new" method="POST">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
@@ -17,7 +19,7 @@
                 <textarea class="form-control" id="body" name="body" rows="4" required></textarea>
             </div>
             <div class="mb-3">
-                <label for="coverImageURL" class="form-label">Cover Image URL</label>
+                <label for="coverImageURL" class="form-label">Cover Image URL (optionol)</label>
                 <input type="text" class="form-control" id="coverImageURL" name="coverImageURL">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>

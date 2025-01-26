@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title><%= blog.title %></title>
+</head>
+<body>
+    <%- include('./partials/nav') %>
+
+    <div class="container mt-4">
+        <h1><%= blog.title %></h1>
+        <p><%= blog.body %></p>
+
+        <% if (blog.coverImageURL) { %>
+            <img src="<%= blog.coverImageURL %>" alt="Cover Image" class="img-fluid" />
+        <% } else { %>
+            <p>No cover image available.</p> <!-- Fallback message if no cover image is provided -->
+        <% } %>
+
+        <p><strong>Written by:</strong> <%= blog.createdBy.email %></p> <!-- Display author's email -->
+    </div>
+
+    <%- include('./partials/scripts') %>
+</body>
+</html>

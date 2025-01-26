@@ -7,10 +7,30 @@
 <body>
     <%- include('./partials/nav') %>
 
-    <h1>Welcome to the Homepage!</h1>
-    <% if (!user) { %>
-        <p>Please sign in to view your profile.</p>
-    <% } %>
+    <div class="container mt-3">
+        <h1>Welcome to the Homepage!</h1>
+        
+        <% if (!user) { %>
+            <p>Please sign in to view your profile.</p>
+        <% } else { %>
+            <h3>Latest Blogs</h3>
+            <div class="row">
+                <% blogs.forEach(blog => { %>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="<%= blog.coverImageURL || '/images/default.png' %>" class="card-img-top" alt="Blog Image">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= blog.title %></h5>
+                                <p class="card-text"><%= blog.body.slice(0, 100) %>...</p>
+                                <a href="/blog/<%= blog._id %>" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+
+    </div>
 
     <%- include('./partials/scripts') %>
 </body>

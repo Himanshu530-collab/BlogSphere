@@ -16,13 +16,13 @@ const blogSchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "user", // Reference to the user model for the author of the blog
+      ref: "User", // Corrected reference to "User" model with uppercase 'U'
       required: true, // Ensure a blog must have an author
     },
   },
   { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
 );
 
-const Blog = model("blog", blogSchema);
+const Blog = model("Blog", blogSchema); // You can use "Blog" with uppercase as well if desired
 
 module.exports = Blog;

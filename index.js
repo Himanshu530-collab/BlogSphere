@@ -1,5 +1,7 @@
 const express = require("express");
 const path = require("path");
+const Blog = require("./models/blog");
+  // Add this line to import the Blog model
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser"); // Import cookie-parser
 const { validateToken } = require("./services/authentication"); // Import validateToken from authentication.js
@@ -27,11 +29,11 @@ app.use(express.urlencoded({ extended: true }));  // Middleware for parsing URL-
 app.use(express.json());  // Middleware for parsing JSON bodies
 
 // Home route
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
     const token = req.cookies.authToken;
 
     if (!token) {
-        return res.render("home", { user: null });  // No user, render home without user data
+        return res.render("home", { user: null, blogs: [] });  // No user, render home without user data and empty blog list
     }
 
     try {
@@ -39,7 +41,10 @@ app.get("/", (req, res) => {
         if (!decoded) {
             return res.redirect("/user/signin");  // Redirect to signin if token is invalid
         }
-        return res.render("home", { user: decoded }); // Pass the user data to home.ejs
+
+        // Fetch all blogs from the database to display on the homepage
+        const blogs = await Blog.find();  // Fetching all blogs from the database
+        return res.render("home", { user: decoded, blogs }); // Pass the user data and blogs to home.ejs
     } catch (error) {
         console.error("Invalid token:", error);
         return res.redirect("/user/signin");  // Redirect to signin if token is invalid
