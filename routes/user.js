@@ -17,6 +17,9 @@ router.get('/signup', (req, res) => {
 
 // Signin route
 // Signin route
+// Signin route
+// Signin route
+// Signin route
 router.post("/signin", async (req, res) => {
     const { email, password } = req.body;
     console.log("Signin request received:", { email, password });
@@ -27,29 +30,32 @@ router.post("/signin", async (req, res) => {
 
         if (!user) {
             console.log("User not found for email:", email);
-            return res.status(400).send('User not found');
+            return res.render('signin', {
+                errorMessage: 'Invalid email or password',  // Pass error message to the view
+            });
         }
 
         // Compare password using the instance method
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
             console.log("Invalid password for user:", email);
-            return res.status(400).send('Invalid email or password');
+            return res.render('signin', {
+                errorMessage: 'Invalid email or password',  // Pass error message to the view
+            });
         }
 
         // Create JWT token for the user
         const token = createTokenForUser(user);
-        console.log("User signed in successfully:", email);
 
         // Store the JWT token in an HTTP-only cookie
         res.cookie('authToken', token, {
-            httpOnly: true,  // Prevents client-side JS from accessing the cookie
-            secure: process.env.NODE_ENV === 'production', // Set to true for HTTPS in production
-            maxAge: 3600000, // Cookie expires after 1 hour
-            sameSite: 'strict' // Prevents CSRF attacks
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',  // Use HTTPS in production
+            maxAge: 3600000,  // Cookie expires after 1 hour
+            sameSite: 'strict',
         });
 
-        // Redirect to the homepage
+        // Redirect to home page after successful login
         return res.redirect("/");
 
     } catch (error) {
@@ -57,6 +63,10 @@ router.post("/signin", async (req, res) => {
         return res.status(500).send('Something went wrong, please try again');
     }
 });
+
+
+
+
 // Signup route
 router.post('/signup', async (req, res) => {
     const { fullName, email, password } = req.body;
