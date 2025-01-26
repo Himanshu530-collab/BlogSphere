@@ -1,6 +1,9 @@
-<%- include('./partials/head') %>
-<title><%= blog.title %></title>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title><%= blog.title %></title>
+</head>
 <body>
     <!-- Conditionally render nav bar only if this is not a single blog page -->
     <% if (!isSingleBlogPage) { %>
@@ -12,7 +15,11 @@
         <p><%= blog.body %></p>
 
         <% if (blog.coverImageURL) { %>
+            <!-- Display the resized image for homepage view -->
             <img src="<%= blog.coverImageURL %>" alt="Cover Image" class="img-fluid" />
+        <% } else if (blog.originalImageURL) { %>
+            <!-- If there's no cover image, display the original image -->
+            <img src="<%= blog.originalImageURL %>" alt="Original Cover Image" class="img-fluid" />
         <% } else { %>
             <p>No cover image available.</p>
         <% } %>

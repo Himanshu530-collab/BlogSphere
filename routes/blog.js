@@ -1,6 +1,9 @@
 const { Router } = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require('fs'); // This is needed to delete the original image
+
+const sharp = require("sharp"); // Import sharp for image resizing
 
 const Blog = require('../models/blog');
 const User = require('../models/user');
@@ -87,7 +90,28 @@ router.post("/add-new", authenticate, (req, res) => {
     }
 
     const { title, body } = req.body;
-    const coverImageURL = req.file ? `/images/${req.file.filename}` : null; // Set the cover image URL if a file is uploaded
+
+    let coverImageURL = null;
+    if (req.file) {
+      // Resize the uploaded image using sharp
+      try {
+        const inputPath = path.join(__dirname, '../public/images/', req.file.filename);
+        const outputPath = path.join(__dirname, '../public/images/', 'resized-' + req.file.filename);
+
+        await sharp(inputPath)
+          .resize(800, 600) // Resize to a maximum width of 800px and height of 600px
+          .toFile(outputPath);
+
+        // After resizing, delete the original file
+        fs.unlinkSync(inputPath);
+
+        // Set the cover image URL to the resized image
+        coverImageURL = `/images/resized-${req.file.filename}`;
+      } catch (resizeError) {
+        console.error("Error resizing image:", resizeError);
+        return res.status(500).send("Error resizing image");
+      }
+    }
 
     if (!req.user) {
       return res.status(401).send("User not authenticated");
