@@ -1,23 +1,40 @@
-const JWT=require("jsonwebtoken");
-const secret="$uperMan@123";
+const JWT = require("jsonwebtoken");
+const secret = "$uperMan@123";
 
-
-function createTokenForUser(user){
-    const payload={
-        _id:user._id,
-        email:user.email,
-        profileImageURL:user.profileImageURL,
-        role:user.role,
+// Function to create token for a user
+function createTokenForUser(user) {
+    const payload = {
+        _id: user._id,
+        email: user.email,
+        profileImageURL: user.profileImageURL,
+        role: user.role,
     };
-    const token=JWT.sign(payload,secret);
+    const token = JWT.sign(payload, secret, { expiresIn: '1h' });  // Token expires in 1 hour
     return token;
 }
-function validateToken(token){
-    const payload=JWT.verify(token,secret);
-    return payload;
+
+// Function to validate token and return the decoded user
+function validateToken(token) {
+    try {
+        const payload = JWT.verify(token, secret); // Throws an error if the token is invalid
+        return payload;
+    } catch (error) {
+        return null;  // Return null if token is invalid
+    }
 }
-module.exports={
+
+// Add verifyToken function to handle JWT verification and errors
+function verifyToken(token) {
+    try {
+        const decoded = JWT.verify(token, secret);
+        return decoded;
+    } catch (error) {
+        return null;  // Return null if the token is invalid or expired
+    }
+}
+
+module.exports = {
     createTokenForUser,
     validateToken,
-
+    verifyToken,  // Export verifyToken
 };

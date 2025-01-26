@@ -7,18 +7,36 @@ const cookieParser = require('cookie-parser'); // Import cookie-parser
 // Middleware to parse cookies
 router.use(cookieParser());
 
+// Middleware to check if the user is authenticated
+const checkAuthenticated = (req, res, next) => {
+    const token = req.cookies.authToken;  // Get token from cookies
+
+    if (token) {
+        try {
+            const decodedUser = validateToken(token);  // Verify the token using the helper function
+            req.user = decodedUser;  // Attach user to request if token is valid
+            return next();  // Continue to the next middleware or route handler
+        } catch (error) {
+            console.error("Token verification failed:", error);
+        }
+    }
+    req.user = null;  // If there's no token or it's invalid, set user to null
+    next();
+};
+
+// Apply the middleware globally to all routes that need the user info
+router.use(checkAuthenticated);
+
+// Route to render SignIn page
 router.get('/signin', (req, res) => {
-    return res.render("signin");
+    return res.render("signin", { user: req.user });
 });
 
+// Route to render SignUp page
 router.get('/signup', (req, res) => {
-    return res.render("signup");
+    return res.render("signup", { user: req.user });
 });
 
-// Signin route
-// Signin route
-// Signin route
-// Signin route
 // Signin route
 router.post("/signin", async (req, res) => {
     const { email, password } = req.body;
@@ -32,6 +50,7 @@ router.post("/signin", async (req, res) => {
             console.log("User not found for email:", email);
             return res.render('signin', {
                 errorMessage: 'Invalid email or password',  // Pass error message to the view
+                user: req.user
             });
         }
 
@@ -41,6 +60,7 @@ router.post("/signin", async (req, res) => {
             console.log("Invalid password for user:", email);
             return res.render('signin', {
                 errorMessage: 'Invalid email or password',  // Pass error message to the view
+                user: req.user
             });
         }
 
@@ -63,9 +83,6 @@ router.post("/signin", async (req, res) => {
         return res.status(500).send('Something went wrong, please try again');
     }
 });
-
-
-
 
 // Signup route
 router.post('/signup', async (req, res) => {
@@ -109,5 +126,10 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+// Logout route
+router.get('/logout', (req, res) => {
+    res.clearCookie('authToken');  // Clear the authToken cookie
+    res.redirect('/');  // Redirect to the homepage
+});
 
 module.exports = router;

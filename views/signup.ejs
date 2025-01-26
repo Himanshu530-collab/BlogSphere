@@ -1,46 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('./partials/head') %>
-        <title>Signup</title>
-    </head>
-    <body>
-        <%- include('./partials/nav') %>
+<head>
+    <%- include('./partials/head') %>
+    <title>Signup</title>
+</head>
+<body>
+    <!-- Include the nav partial and pass the user object -->
+    <%- include('./partials/nav', { user: user }) %>
 
-        <div class="container mt-4" >
-            <form action="/user/signup" method="post">
-                <div class="mb-3">
-                    <label for="fullName" class="form-label">Full Name</label>
-                    <input 
+    <div class="container mt-4">
+        <form action="/user/signup" method="post">
+            <!-- Display error message if there is one -->
+            <% if (typeof errorMessage !== 'undefined') { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= errorMessage %>
+                </div>
+            <% } %>
+
+            <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input 
                     type="text" 
                     class="form-control"
-                     id="fullName"
-                     name="fullName" 
-                     aria-describedby="fullName">
-                  </div>
-                <div class="mb-3">
-                  <label for="exampleInputEmail1" class="form-label">Email address</label>
-                  <input 
-                  type="email" 
-                  name="email"
-                  class="form-control" 
-                  id="exampleInputEmail1" 
-                  aria-describedby="emailHelp">
-                </div>
-                <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label">Password</label>
-                  <input 
-                  type="password"
-                  name="password"
-                  class="form-control" 
-                  id="exampleInputPassword1">
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </form>
-           
-        </div>
+                    id="fullName"
+                    name="fullName" 
+                    aria-describedby="fullName" 
+                    required
+                >
+            </div>
 
-        <%- include('./partials/scripts') %>
-    </body>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email address</label>
+                <input 
+                    type="email" 
+                    name="email"
+                    class="form-control" 
+                    id="exampleInputEmail1" 
+                    aria-describedby="emailHelp" 
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input 
+                    type="password"
+                    name="password"
+                    class="form-control" 
+                    id="exampleInputPassword1" 
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <%- include('./partials/scripts') %>
+</body>
 </html>

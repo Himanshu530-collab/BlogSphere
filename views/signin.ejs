@@ -5,7 +5,8 @@
     <title>Signin</title>
 </head>
 <body>
-    <%- include('./partials/nav') %>
+    <!-- Include the nav partial and pass the user object -->
+    <%- include('./partials/nav', { user: user }) %>
 
     <div class="container mt-4">
         <form action="/user/signin" method="post">
