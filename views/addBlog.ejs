@@ -9,18 +9,28 @@
     <div class="container mt-3">
         <h1>Add a New Blog</h1>
 
-        <form action="/blog/add-new" method="POST">
+        <!-- Display error message if there's one -->
+        <% if (errorMessage) { %>
+            <div class="alert alert-danger">
+                <%= errorMessage %> <!-- Display error message here -->
+            </div>
+        <% } %>
+
+        <!-- Add enctype="multipart/form-data" for file uploads -->
+        <form action="/blog/add-new" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
+                <!-- Retain the value of title -->
+                <input type="text" class="form-control" id="title" name="title" value="<%= title %>" required>
             </div>
             <div class="mb-3">
                 <label for="body" class="form-label">Body</label>
-                <textarea class="form-control" id="body" name="body" rows="4" required></textarea>
+                <!-- Retain the value of body -->
+                <textarea class="form-control" id="body" name="body" rows="4" required><%= body %></textarea>
             </div>
             <div class="mb-3">
-                <label for="coverImageURL" class="form-label">Cover Image URL (optionol)</label>
-                <input type="text" class="form-control" id="coverImageURL" name="coverImageURL">
+                <label for="coverImage" class="form-label">Cover Image (optional)</label>
+                <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/*">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

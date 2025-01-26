@@ -1,7 +1,11 @@
 const { Router } = require("express");
 const User = require('../models/user');
+const authenticate = require('../middlewares/authenticate');  // Add this line at the top of user.js
+
 const { createTokenForUser, validateToken } = require('../services/authentication');  // Import the functions from services/authentication.js
 const router = Router();
+const multer = require('multer');
+const path = require('path');
 const cookieParser = require('cookie-parser'); // Import cookie-parser
 
 // Middleware to parse cookies
@@ -131,5 +135,46 @@ router.get('/logout', (req, res) => {
     res.clearCookie('authToken');  // Clear the authToken cookie
     res.redirect('/');  // Redirect to the homepage
 });
+// Set up multer storage engine
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/images');  // Store the file in public/images
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname));  // Unique filename
+    }
+  });
+  
+  const upload = multer({ storage: storage });
+  
+  // Route to update profile image
+  router.post('/update-profile-image', upload.single('profileImage'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).send('No image uploaded');
+    }
+  
+    try {
+      const user = await User.findByIdAndUpdate(req.user._id, {
+        profileImageURL: '/images/' + req.file.filename,  // Store the relative path in DB
+      }, { new: true });
+  
+      // Redirect to profile page after update
+      res.redirect('/user/profile');
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      res.status(500).send('Server error');
+    }
+  });
+// In your user routes
+router.get('/profile', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.render('profile', { user }); // Render profile page
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).send("Error fetching profile.");
+  }
+});
+
 
 module.exports = router;

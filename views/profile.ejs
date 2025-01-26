@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title>Your Profile</title>
+</head>
+<body>
+    <%- include('./partials/nav') %>
+
+    <div class="container mt-5">
+        <h1>Your Profile</h1>
+        
+        <!-- Display Profile Image -->
+        <div class="profile-image">
+            <img src="<%= user.profileImageURL %>" alt="Profile Image" class="rounded-circle" width="150" height="150">
+        </div>
+
+        <h3><%= user.fullName %></h3>
+        <p>Email: <%= user.email %></p>
+
+        <!-- Form to upload new profile image -->
+        <form action="/user/update-profile-image" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="profileImage">Upload New Profile Image</label>
+                <input type="file" name="profileImage" id="profileImage" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Upload Image</button>
+        </form>
+    </div>
+
+    <%- include('./partials/scripts') %>
+</body>
+</html>

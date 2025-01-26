@@ -26,9 +26,12 @@
                 <% if (user) { %>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- Display profile image or default image if user doesn't have one -->
+                            <img src="<%= user.profileImageURL || '/images/default-profile.png' %>" alt="Profile" class="rounded-circle" width="30" height="30">
                             <%= user.fullName %> <!-- Display user's full name -->
                         </a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/user/profile">Profile</a></li>
                             <li><a class="dropdown-item" href="/user/logout">Logout</a></li>
                         </ul>
                     </li>

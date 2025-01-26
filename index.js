@@ -7,6 +7,8 @@ const cookieParser = require("cookie-parser"); // Import cookie-parser
 const { validateToken } = require("./services/authentication"); // Import validateToken from authentication.js
 
 const app = express();
+const sharp = require("sharp");
+
 const port = 3000;
 
 // Middleware setup
@@ -50,6 +52,7 @@ app.get("/", async (req, res) => {
         return res.redirect("/user/signin");  // Redirect to signin if token is invalid
     }
 });
+app.use(express.static(path.join(__dirname, 'public')));
 
 // User routes
 app.use('/user', userRoute);
