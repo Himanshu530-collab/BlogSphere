@@ -13,19 +13,25 @@ router.get("/add-new", authenticate, (req, res) => {
     });
 });
 // View a single blog (GET route)
-router.get("/blog/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const blog = await Blog.findById(id).populate('createdBy', 'email');
         if (!blog) {
             return res.status(404).send("Blog not found");
         }
-        return res.render("singleBlog", { blog });
+        // Pass the user and blog to the view
+        return res.render("singleBlog", {
+            blog,
+            user: req.user,  // Pass the user data to the view
+        });
     } catch (error) {
         console.error("Error fetching blog:", error);
         res.status(500).send("Error fetching blog");
     }
 });
+
+
 
 
 
