@@ -79,6 +79,16 @@
                                 <h5 class="card-title"><%= blog.title %></h5>
                                 <p class="card-text"><%= blog.body.slice(0, 100) %>...</p>
                                 <a href="/blog/<%= blog._id %>" class="btn btn-primary">Read More</a>
+
+                                <!-- Edit and Delete links, only visible to the blog creator -->
+                                <% if (user && blog.createdBy._id.toString() === user._id.toString()) { %>
+                                    <div class="mt-2">
+                                        <a href="/blog/edit/<%= blog._id %>" class="btn btn-warning">Edit Blog</a>
+                                        <form action="/blog/delete/<%= blog._id %>" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger">Delete Blog</button>
+                                        </form>
+                                    </div>
+                                <% } %>
                             </div>
                         </div>
                     </div>

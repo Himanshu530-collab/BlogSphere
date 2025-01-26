@@ -26,7 +26,17 @@
 
         <p><strong>Written by:</strong> <%= blog.createdBy.email %></p>
 
-        <a href="/" class="btn btn-primary">Back to Home</a> <!-- Show Home button on single blog page -->
+        <!-- Conditionally display Edit and Delete links only for the blog creator -->
+        <% if (user && blog.createdBy._id.toString() === user._id.toString()) { %>
+            <!-- Edit and Delete links, only visible to the blog creator -->
+            <a href="/blog/edit/<%= blog._id %>" class="btn btn-warning">Edit Blog</a>
+            <form action="/blog/delete/<%= blog._id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger">Delete Blog</button>
+            </form>
+        <% } %>
+
+        <!-- Back to Home button -->
+        <a href="/" class="btn btn-primary">Back to Home</a>
     </div>
 
     <%- include('./partials/scripts') %>

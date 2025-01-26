@@ -2,9 +2,7 @@ const { Router } = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require('fs'); // This is needed to delete the original image
-
 const sharp = require("sharp"); // Import sharp for image resizing
-
 const Blog = require('../models/blog');
 const User = require('../models/user');
 const authenticate = require('../middlewares/authenticate'); // Import authenticate middleware
@@ -28,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 15 * 1024 }, // 15KB limit
-}).single("coverImage"); // Make sure to apply this for the file upload
+});
 
 // Show the form to add a new blog (GET route)
 router.get("/add-new", authenticate, (req, res) => {
@@ -48,9 +46,12 @@ router.get("/:id", async (req, res) => {
     if (!blog) {
       return res.status(404).send("Blog not found");
     }
+
+    // Pass the blog, user, and isSingleBlogPage flag to the template
     return res.render("singleBlog", {
       blog,
-      isSingleBlogPage: true
+      isSingleBlogPage: true,
+      user: req.user  // <-- Pass the user here
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
@@ -74,7 +75,7 @@ router.get("/", async (req, res) => {
 
 // Add a new blog (POST route) with file upload and error handling
 router.post("/add-new", authenticate, (req, res) => {
-  upload(req, res, async (err) => {
+  upload.single('coverImage')(req, res, async (err) => { // Call upload.single explicitly here
     // Handle Multer Errors
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
@@ -91,21 +92,28 @@ router.post("/add-new", authenticate, (req, res) => {
 
     const { title, body } = req.body;
 
+    // Basic validation to ensure title and body are not empty
+    if (!title || !body) {
+      return res.render('addBlog', {
+        user: req.user, 
+        errorMessage: "Title and body are required", // Show a validation error message
+        title: req.body.title,
+        body: req.body.body,
+      });
+    }
+
     let coverImageURL = null;
     if (req.file) {
-      // Resize the uploaded image using sharp
       try {
         const inputPath = path.join(__dirname, '../public/images/', req.file.filename);
         const outputPath = path.join(__dirname, '../public/images/', 'resized-' + req.file.filename);
 
         await sharp(inputPath)
-          .resize(800, 600) // Resize to a maximum width of 800px and height of 600px
+          .resize(800, 600)
           .toFile(outputPath);
 
-        // After resizing, delete the original file
         fs.unlinkSync(inputPath);
 
-        // Set the cover image URL to the resized image
         coverImageURL = `/images/resized-${req.file.filename}`;
       } catch (resizeError) {
         console.error("Error resizing image:", resizeError);
@@ -122,7 +130,7 @@ router.post("/add-new", authenticate, (req, res) => {
         title,
         body,
         coverImageURL,
-        createdBy: req.user._id, // Use the user's ID from the decoded token
+        createdBy: req.user._id,
       });
 
       await newBlog.save();
@@ -132,6 +140,98 @@ router.post("/add-new", authenticate, (req, res) => {
       res.status(500).send("Error adding new blog");
     }
   });
+});
+
+// Edit Blog (GET route)
+router.get("/edit/:id", authenticate, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).send("Blog not found");
+    }
+
+    // Only allow the author of the blog to edit it
+    if (blog.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).send("Unauthorized");
+    }
+
+    return res.render("edit", {
+      blog,
+      user: req.user,
+    });
+  } catch (error) {
+    console.error("Error fetching blog:", error);
+    res.status(500).send("Error fetching blog");
+  }
+});
+
+// Handle the update when a user submits the edit form (POST route)
+router.post('/edit/:id', authenticate, (req, res) => {
+  upload.single('coverImage')(req, res, async (err) => {  // Call upload.single explicitly here
+    const { id } = req.params;
+    const { title, body } = req.body;
+    const coverImage = req.file; // Handle uploaded image
+
+    try {
+      // Find the blog by its ID
+      const blog = await Blog.findById(id);
+
+      if (!blog) {
+        return res.status(404).send('Blog not found');
+      }
+
+      // Check if the user is the author of the blog
+      if (blog.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).send('Unauthorized');
+      }
+
+      // Update the blog's fields
+      blog.title = title;
+      blog.body = body;
+
+      // If a new cover image was uploaded, update the image URL
+      if (coverImage) {
+        blog.coverImageURL = `/images/${coverImage.filename}`;
+      }
+
+      // Save the updated blog to the database
+      await blog.save();
+
+      // Redirect to the updated blog page
+      res.redirect(`/blog/${blog._id}`);
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      res.status(500).send('Error updating blog');
+    }
+  });
+});
+
+// Delete Blog (POST route)
+router.post('/delete/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return res.status(404).send('Blog not found');
+    }
+
+    // Check if the current user is the creator of the blog
+    if (blog.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).send('Unauthorized');
+    }
+
+    // Delete the blog using deleteOne
+    await Blog.deleteOne({ _id: id });
+
+    // Redirect to homepage after deletion
+    res.redirect('/');
+  } catch (error) {
+    console.error('Error deleting blog:', error);
+    res.status(500).send('Error deleting blog');
+  }
 });
 
 module.exports = router;
