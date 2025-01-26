@@ -1,17 +1,17 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Blogify</a>
+        <a class="navbar-brand" href="/">Blogify</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
-                <!-- Home link -->
+                <!-- Home link - Always visible -->
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/">Home</a>
                 </li>
 
-                <!-- Add Blog link (only active if user is authenticated) -->
+                <!-- Add Blog link, only visible when user is logged in -->
                 <% if (user) { %>
                     <li class="nav-item">
                         <a class="nav-link" href="/blog/add-new">Add Blog</a>
@@ -22,7 +22,7 @@
                     </li>
                 <% } %>
 
-                <!-- Show user dropdown if logged in -->
+                <!-- User Dropdown, only visible when user is logged in -->
                 <% if (user) { %>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -33,7 +33,7 @@
                         </ul>
                     </li>
                 <% } else { %>
-                    <!-- Show Signin and Signup links if user is not logged in -->
+                    <!-- Signin and Signup links, only visible when user is not logged in -->
                     <li class="nav-item">
                         <a class="nav-link" href="/user/signin">Signin</a>
                     </li>

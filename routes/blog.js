@@ -23,7 +23,7 @@ router.get("/:id", async (req, res) => {
         // Pass the user and blog to the view
         return res.render("singleBlog", {
             blog,
-            user: req.user,  // Pass the user data to the view
+            isSingleBlogPage: true // Pass the user data to the view
         });
     } catch (error) {
         console.error("Error fetching blog:", error);
@@ -68,7 +68,7 @@ router.post("/add-new", authenticate, async (req, res) => {
         });
 
         await newBlog.save();
-        res.redirect("/blog");  // Redirect to the home route to view all blogs after adding the new one
+        res.redirect("/");  // Redirect to the home route to view all blogs after adding the new one
 
     } catch (error) {
         console.error("Error adding new blog:", error);
