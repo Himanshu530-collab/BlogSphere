@@ -1,6 +1,11 @@
 const { Router } = require("express");
 const User = require('../models/user');
+const { createTokenForUser, validateToken } = require('../services/authentication');  // Import the functions from services/authentication.js
 const router = Router();
+const cookieParser = require('cookie-parser'); // Import cookie-parser
+
+// Middleware to parse cookies
+router.use(cookieParser());
 
 router.get('/signin', (req, res) => {
     return res.render("signin");
@@ -10,6 +15,7 @@ router.get('/signup', (req, res) => {
     return res.render("signup");
 });
 
+// Signin route
 // Signin route
 router.post("/signin", async (req, res) => {
     const { email, password } = req.body;
@@ -31,8 +37,19 @@ router.post("/signin", async (req, res) => {
             return res.status(400).send('Invalid email or password');
         }
 
-        // Redirect to homepage or dashboard after successful login
+        // Create JWT token for the user
+        const token = createTokenForUser(user);
         console.log("User signed in successfully:", email);
+
+        // Store the JWT token in an HTTP-only cookie
+        res.cookie('authToken', token, {
+            httpOnly: true,  // Prevents client-side JS from accessing the cookie
+            secure: process.env.NODE_ENV === 'production', // Set to true for HTTPS in production
+            maxAge: 3600000, // Cookie expires after 1 hour
+            sameSite: 'strict' // Prevents CSRF attacks
+        });
+
+        // Redirect to the homepage
         return res.redirect("/");
 
     } catch (error) {
@@ -40,7 +57,6 @@ router.post("/signin", async (req, res) => {
         return res.status(500).send('Something went wrong, please try again');
     }
 });
-
 // Signup route
 router.post('/signup', async (req, res) => {
     const { fullName, email, password } = req.body;
@@ -63,7 +79,18 @@ router.post('/signup', async (req, res) => {
 
         console.log("New user created:", newUser);
 
-        // Redirect after successful signup
+        // Create JWT token for the newly registered user
+        const token = createTokenForUser(newUser);
+
+        // Store the JWT token in an HTTP-only cookie
+        res.cookie('authToken', token, {
+            httpOnly: true,  // Prevents client-side JS from accessing the cookie
+            secure: process.env.NODE_ENV === 'production', // Set to true for HTTPS in production
+            maxAge: 3600000, // Cookie expires after 1 hour
+            sameSite: 'strict' // Prevents CSRF attacks
+        });
+
+        // Redirect to the homepage
         return res.redirect("/");
 
     } catch (error) {
@@ -71,5 +98,6 @@ router.post('/signup', async (req, res) => {
         return res.status(400).send('Error creating user');
     }
 });
+
 
 module.exports = router;

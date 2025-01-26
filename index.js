@@ -1,13 +1,22 @@
-const path = require("path");
 const express = require("express");
-const mongoose=require("mongoose");
+const path = require("path");
+const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser"); // Import cookie-parser
+const { validateToken } = require("./services/authentication"); // Import validateToken from authentication.js
 
 const app = express();
 const port = 3000;
 
+// Middleware setup
+app.use(cookieParser()); // Enable cookie parsing globally
+
+// MongoDB connection
 mongoose.connect("mongodb://localhost:27017/blogify")
-.then(e=>console.log("MongoDB Connected"))
-const userRoute=require('./routes/user');
+    .then(e => console.log("MongoDB Connected"))
+    .catch(err => console.error("MongoDB connection failed:", err));
+
+const userRoute = require('./routes/user');
+
 // Set up the view engine to use EJS
 app.set("view engine", "ejs");
 
@@ -16,12 +25,25 @@ app.set("views", path.resolve("./views"));
 app.use(express.urlencoded({ extended: true }));  // Middleware for parsing URL-encoded form data
 app.use(express.json());  // Middleware for parsing JSON bodies
 
-
 // Home route
 app.get("/", (req, res) => {
-    res.render("home");  // Renders the 'home.ejs' file
+    const token = req.cookies.authToken;
+
+    if (!token) {
+        return res.render("home", { user: null });  // No user, render home without user data
+    }
+
+    try {
+        const decoded = validateToken(token); // Validate token and decode it
+        return res.render("home", { user: decoded }); // Pass the user data to home.ejs
+    } catch (error) {
+        console.error("Invalid token:", error);
+        return res.redirect("/user/signin");  // Redirect to signin if token is invalid
+    }
 });
-app.use('/user',userRoute);
+
+// User routes
+app.use('/user', userRoute);
 
 // Start the server
 app.listen(port, () => {
