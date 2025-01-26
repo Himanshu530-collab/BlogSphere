@@ -16,25 +16,16 @@ function createTokenForUser(user) {
 // Function to validate token and return the decoded user
 function validateToken(token) {
     try {
+        console.log("Validating token:", token);
         const payload = JWT.verify(token, secret); // Throws an error if the token is invalid
         return payload;
     } catch (error) {
+        console.error("Token validation failed:", error);  // Log the error if token is invalid
         return null;  // Return null if token is invalid
-    }
-}
-
-// Add verifyToken function to handle JWT verification and errors
-function verifyToken(token) {
-    try {
-        const decoded = JWT.verify(token, secret);
-        return decoded;
-    } catch (error) {
-        return null;  // Return null if the token is invalid or expired
     }
 }
 
 module.exports = {
     createTokenForUser,
     validateToken,
-    verifyToken,  // Export verifyToken
 };
