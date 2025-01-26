@@ -17,7 +17,7 @@
         <% } %>
 
         <!-- Add enctype="multipart/form-data" for file uploads -->
-        <form action="/blog/add-new" method="POST" enctype="multipart/form-data">
+        <form action="/blog/add-new" method="POST" enctype="multipart/form-data" onsubmit="return confirmAdd()">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <!-- Retain the value of title -->
@@ -32,9 +32,16 @@
                 <label for="coverImage" class="form-label">Cover Image (optional)</label>
                 <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/*">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-success">Add Blog</button>
         </form>
     </div>
+
+    <!-- JavaScript for confirmation -->
+    <script>
+        function confirmAdd() {
+            return confirm("Are you sure you want to add this blog?");
+        }
+    </script>
 
     <%- include('./partials/scripts') %>
 </body>

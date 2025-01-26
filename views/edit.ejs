@@ -10,7 +10,8 @@
     <div class="container mt-4">
         <h1>Edit Blog: <%= blog.title %></h1>
 
-        <form action="/blog/edit/<%= blog._id %>" method="POST" enctype="multipart/form-data">
+        <!-- Edit form with confirmation -->
+        <form action="/blog/edit/<%= blog._id %>" method="POST" enctype="multipart/form-data" onsubmit="return confirmEdit()">
             <!-- Title Input -->
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
@@ -43,6 +44,13 @@
         <!-- Back to Blog Button -->
         <a href="/blog/<%= blog._id %>" class="btn btn-secondary mt-3">Back to Blog</a>
     </div>
+
+    <!-- JavaScript for confirmation -->
+    <script>
+        function confirmEdit() {
+            return confirm("Are you sure you want to save changes to this blog?");
+        }
+    </script>
 
     <%- include('./partials/scripts') %>
 </body>

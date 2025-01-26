@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title>Delete Blog</title>
+</head>
+<body>
+    <%- include('./partials/nav') %>
+
+    <div class="container mt-4">
+        <h1>Are you sure you want to delete the blog: <%= blog.title %>?</h1>
+
+        <!-- Confirmation form to delete the blog -->
+        <form action="/blog/delete/<%= blog._id %>" method="POST" onsubmit="return confirmDelete()">
+            <div class="alert alert-warning">
+                <strong>Warning!</strong> This action cannot be undone.
+            </div>
+
+            <!-- Buttons for confirmation -->
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a href="/blog/<%= blog._id %>" class="btn btn-secondary">No, go back</a>
+        </form>
+    </div>
+
+    <!-- JavaScript for confirmation -->
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this blog?");
+        }
+    </script>
+
+    <%- include('./partials/scripts') %>
+</body>
+</html>
