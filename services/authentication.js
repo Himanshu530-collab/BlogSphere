@@ -1,5 +1,5 @@
 const JWT = require("jsonwebtoken");
-const secret = "$uperMan@123";
+const secret = process.env.JWT_SECRET;
 
 // Function to create token for a user
 function createTokenForUser(user) {
@@ -9,7 +9,7 @@ function createTokenForUser(user) {
         profileImageURL: user.profileImageURL,
         role: user.role,
     };
-    const token = JWT.sign(payload, secret, { expiresIn: '1h' });  // Token expires in 1 hour
+    const token = JWT.sign(payload, secret, { expiresIn: '2d' });  // Token expires in 1 hour
     return token;
 }
 

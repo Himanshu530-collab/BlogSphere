@@ -1,3 +1,5 @@
+require('dotenv').config();  // Add this at the top of your file to load the .env variables
+
 const express = require("express");
 const path = require("path");
 const Blog = require("./models/blog");
@@ -9,13 +11,13 @@ const { validateToken } = require("./services/authentication"); // Import valida
 const app = express();
 const sharp = require("sharp");
 
-const port = 3000;
+const port = process.env.PORT 
 
 // Middleware setup
 app.use(cookieParser()); // Enable cookie parsing globally
 
 // MongoDB connection
-mongoose.connect("mongodb://localhost:27017/blogify")
+mongoose.connect(process.env.MONGO_URI)
     .then(e => console.log("MongoDB Connected"))
     .catch(err => console.error("MongoDB connection failed:", err));
 
