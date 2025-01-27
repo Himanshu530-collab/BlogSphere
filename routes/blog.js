@@ -42,22 +42,37 @@ router.get("/add-new", authenticate, (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const blog = await Blog.findById(id).populate('createdBy', 'email profileImageURL');
+    // Fetch the blog with its comments and populate 'createdBy' field
+    const blog = await Blog.findById(id)
+      .populate('createdBy', 'email profileImageURL')  // Populate the blog creator
+      .populate({
+        path: 'comments',  // Populate the comments array
+        populate: { path: 'createdBy', select: 'email' }  // Populate the creator for each comment
+      });
+
     if (!blog) {
       return res.status(404).send("Blog not found");
     }
 
-    // Pass the blog, user, and isSingleBlogPage flag to the template
+    // Ensure comments have a default createdBy if missing
+    const comments = blog.comments.map(comment => ({
+      ...comment.toObject(),
+      createdBy: comment.createdBy || { email: 'Unknown user' },  // Fallback if createdBy is missing
+    }));
+
+    // Pass the blog, sanitized comments, user, and isSingleBlogPage flag to the template
     return res.render("singleBlog", {
       blog,
+      comments,  // Pass the sanitized comments
       isSingleBlogPage: true,
-      user: req.user  // <-- Pass the user here
+      user: req.user  // Pass the logged-in user (if any)
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
     res.status(500).send("Error fetching blog");
   }
 });
+
 
 // Fetch all blogs and display on the home page (GET route)
 router.get("/", async (req, res) => {
@@ -150,22 +165,26 @@ router.post("/add-new", authenticate, (req, res) => {
 });
 
 // Edit Blog (GET route)
+// Route to display the edit form
 router.get("/edit/:id", authenticate, async (req, res) => {
   const { id } = req.params;
   try {
+    // Find the blog by ID
     const blog = await Blog.findById(id);
+    
     if (!blog) {
       return res.status(404).send("Blog not found");
     }
 
-    // Only allow the author of the blog to edit it
+    // Ensure the logged-in user is the author of the blog
     if (blog.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).send("Unauthorized");
     }
 
+    // Render the edit page with the blog data
     return res.render("edit", {
       blog,
-      user: req.user,
+      user: req.user,  // Passing the user info to the view for conditional rendering if needed
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
@@ -173,12 +192,13 @@ router.get("/edit/:id", authenticate, async (req, res) => {
   }
 });
 
-// Handle the update when a user submits the edit form (POST route)
+// Handle the update when the user submits the edit form (POST route)
 router.post('/edit/:id', authenticate, (req, res) => {
-  upload.single('coverImage')(req, res, async (err) => {  // Call upload.single explicitly here
+  // File upload middleware
+  upload.single('coverImage')(req, res, async (err) => {  
     const { id } = req.params;
     const { title, body } = req.body;
-    const coverImage = req.file; // Handle uploaded image
+    const coverImage = req.file;  // Get uploaded file (if any)
 
     try {
       // Find the blog by its ID
@@ -188,16 +208,16 @@ router.post('/edit/:id', authenticate, (req, res) => {
         return res.status(404).send('Blog not found');
       }
 
-      // Check if the user is the author of the blog
+      // Ensure the logged-in user is the author of the blog
       if (blog.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).send('Unauthorized');
       }
 
-      // Update the blog's fields
+      // Update the blog's title and body
       blog.title = title;
       blog.body = body;
 
-      // If a new cover image was uploaded, update the image URL
+      // If a new cover image is uploaded, update the image URL
       if (coverImage) {
         blog.coverImageURL = `/images/${coverImage.filename}`;
       }
@@ -205,7 +225,7 @@ router.post('/edit/:id', authenticate, (req, res) => {
       // Save the updated blog to the database
       await blog.save();
 
-      // Redirect to the updated blog page
+      // Redirect to the updated blog page (this should show the updated blog)
       res.redirect(`/blog/${blog._id}`);
     } catch (error) {
       console.error('Error updating blog:', error);
@@ -213,6 +233,7 @@ router.post('/edit/:id', authenticate, (req, res) => {
     }
   });
 });
+
 
 // Delete Blog (POST route)
 router.post('/delete/:id', authenticate, async (req, res) => {

@@ -22,6 +22,8 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error("MongoDB connection failed:", err));
 
 const userRoute = require('./routes/user');
+const commentRoute = require('./routes/comment'); // Add this line for comments
+
 const blogRoute = require("./routes/blog");  // Ensure the blog route is required
 
 // Set up the view engine to use EJS
@@ -58,6 +60,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // User routes
 app.use('/user', userRoute);
+app.use('/comments', commentRoute);  // Add this line for comments route
+
 
 // Blog routes
 app.use("/blog", blogRoute);  // This will handle /blog/add-new and other blog-related routes

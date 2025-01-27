@@ -74,6 +74,37 @@
             </div>
         <% } %>
 
+        <!-- Display comments -->
+        <div class="comments-section">
+            <h3>Comments:</h3>
+            <% if (comments.length > 0) { %>
+                <ul>
+                    <% comments.forEach(comment => { %>
+                      <li>
+                        <% if (comment.createdBy && comment.createdBy._id) { %>
+                          <p><strong><%= comment.createdBy.email %>:</strong> <%= comment.text %></p>
+                          <% if (user && comment.createdBy._id.toString() === user._id.toString()) { %>
+                            <form action="/comments/delete/<%= comment._id %>" method="POST">
+                              <button type="submit">Delete</button>
+                            </form>
+                          <% } %>
+                        <% } else { %>
+                          <p><em>Unknown user:</em> <%= comment.text %></p>
+                        <% } %>
+                      </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p>No comments yet.</p>
+            <% } %>
+
+            <!-- Add a new comment -->
+            <form action="/comments/<%= blog._id %>/add" method="POST">
+                <textarea name="text" required placeholder="Add a comment"></textarea>
+                <button type="submit">Post Comment</button>
+            </form>
+        </div>
+
         <!-- Back to Home button -->
         <a href="/" class="btn btn-primary mt-4">Back to Home</a>
     </div>
