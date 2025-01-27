@@ -3,12 +3,18 @@
 <head>
     <%- include('./partials/head') %>
     <title>Homepage</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Custom styles for Blog cards */
         .card-img-top {
             width: 100%;
-            height: 200px; /* Fix image height */
+            height: 200px;
             object-fit: cover; /* Ensure the image covers the area without distortion */
+            transition: transform 0.3s ease; /* Smooth transition for hover effect */
+        }
+
+        .card-img-top:hover {
+            transform: scale(1.05); /* Slight zoom effect on hover */
         }
 
         .card-body {
@@ -16,7 +22,7 @@
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             margin-bottom: 10px;
             text-align: center;
@@ -37,8 +43,8 @@
         }
 
         .btn-primary {
-            font-size: 12px; /* Smaller "View" button */
-            padding: 5px 10px; /* Adjust padding to make the button smaller */
+            font-size: 12px;
+            padding: 5px 10px;
         }
 
         .btn-warning,
@@ -50,41 +56,49 @@
         /* Button container: Flexbox to align buttons in a line */
         .button-container {
             display: flex;
-            justify-content: space-between; /* Space out the buttons */
+            justify-content: space-between;
             align-items: center;
         }
 
         .btn-container-primary {
-            width: 100%; /* For the "View" button to be bigger when other buttons are not present */
+            width: 100%;
         }
 
-        /* Ensure blogs are displayed in a responsive grid layout */
-        /* This is handled via Bootstrap classes now, so no need for custom media queries */
+        /* Hover effect for card */
+        .card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow effect on hover */
+        }
+
+        .dropdown-menu {
+            min-width: 160px; /* Ensure dropdown is wide enough for content */
+        }
     </style>
 </head>
 <body>
     <%- include('./partials/nav') %>
 
-    <div class="container mt-3">
+    <div class="container mt-4">
         <h1>Welcome to the Homepage!</h1>
 
         <% if (!user) { %>
             <p>Please sign in to view your profile.</p>
         <% } else { %>
             <h3>Latest Blogs</h3>
+
+            <!-- Blog cards in a responsive grid layout -->
             <div class="row">
                 <% blogs.forEach(blog => { %>
-                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3"> <!-- Bootstrap grid system for responsive columns -->
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4"> <!-- Responsive columns -->
                         <div class="card">
                             <img src="<%= blog.coverImageURL || '/images/default.png' %>" class="card-img-top" alt="Blog Image">
                             <div class="card-body">
                                 <h5 class="card-title"><%= blog.title %></h5>
                                 <p class="card-text"><%= blog.body.slice(0, 100) %>...</p>
-                                
+
                                 <div class="button-container">
                                     <!-- View button -->
                                     <a href="/blog/<%= blog._id %>" class="btn btn-primary btn-container-primary">View</a>
-                                    
+
                                     <!-- Edit and Delete links, only visible to the blog creator -->
                                     <% if (user && blog.createdBy._id.toString() === user._id.toString()) { %>
                                         <div class="button-container">
@@ -104,5 +118,10 @@
     </div>
 
     <%- include('./partials/scripts') %>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -3,30 +3,47 @@
 <head>
     <%- include('./partials/head') %>
     <title>Your Profile</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <%- include('./partials/nav') %>
 
     <div class="container mt-5">
-        <h1>Your Profile</h1>
-        
-        <!-- Display Profile Image -->
-        <div class="profile-image">
-            <img src="<%= user.profileImageURL %>" alt="Profile Image" class="rounded-circle" width="150" height="150">
-        </div>
-
-        <h3><%= user.fullName %></h3>
-        <p>Email: <%= user.email %></p>
-
-        <!-- Form to upload new profile image -->
-        <form action="/user/update-profile-image" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="profileImage">Upload New Profile Image</label>
-                <input type="file" name="profileImage" id="profileImage" class="form-control" required>
+        <div class="card shadow-sm">
+            <div class="card-header text-center font-weight-bold">
+                Your Profile
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Upload Image</button>
-        </form>
+            <div class="card-body">
+                <!-- Profile Image with Dropdown -->
+                <div class="text-center mb-4">
+                    <!-- Profile Image with Dropdown Menu -->
+                    <div class="dropdown">
+                        <img src="<%= user.profileImageURL %>" alt="Profile Image" class="rounded-circle" width="150" height="150" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <div class="dropdown-menu text-center">
+                            <a class="dropdown-item" href="/user/profile">View Profile</a>
+                            <a class="dropdown-item" href="/logout">Logout</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-center"><%= user.fullName %></h3>
+                <p class="text-center">Email: <%= user.email %></p>
+
+                <!-- Form to upload new profile image -->
+                <form action="/user/update-profile-image" method="POST" enctype="multipart/form-data" class="text-center">
+                    <div class="form-group">
+                        <label for="profileImage">Upload New Profile Image</label>
+                        <input type="file" name="profileImage" id="profileImage" class="form-control-file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Image</button>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <%- include('./partials/scripts') %>
 </body>
