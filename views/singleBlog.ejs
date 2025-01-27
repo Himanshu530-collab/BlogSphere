@@ -3,6 +3,37 @@
 <head>
     <%- include('./partials/head') %>
     <title><%= blog.title %></title>
+    <style>
+        .cover-image {
+            max-width: 100%; /* Ensure the image never exceeds the container width */
+            height: auto; /* Maintain the aspect ratio */
+            margin-bottom: 20px;
+        }
+
+        .blog-body {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .blog-info {
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+        }
+
+        /* Custom styling for small screens */
+        @media (max-width: 768px) {
+            .blog-body {
+                font-size: 1em;
+            }
+
+            .cover-image {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Conditionally render nav bar only if this is not a single blog page -->
@@ -11,34 +42,40 @@
     <% } %>
 
     <div class="container mt-4">
-        <h1><%= blog.title %></h1>
-        <p><%= blog.body %></p>
-
+        <h1 class="text-center"><%= blog.title %></h1>
+        
         <% if (blog.coverImageURL) { %>
-            <!-- Display the resized image for homepage view -->
-            <img src="<%= blog.coverImageURL %>" alt="Cover Image" class="img-fluid" />
+            <!-- Display the cover image for the blog -->
+            <img src="<%= blog.coverImageURL %>" alt="Cover Image" class="cover-image img-fluid" />
         <% } else if (blog.originalImageURL) { %>
-            <!-- If there's no cover image, display the original image -->
-            <img src="<%= blog.originalImageURL %>" alt="Original Cover Image" class="img-fluid" />
+            <!-- Display original image if there's no cover image -->
+            <img src="<%= blog.originalImageURL %>" alt="Original Cover Image" class="cover-image img-fluid" />
         <% } else { %>
             <p>No cover image available.</p>
         <% } %>
 
-        <p><strong>Written by:</strong> <%= blog.createdBy.email %></p>
+        <div class="blog-body">
+            <p><%= blog.body %></p>
+        </div>
+
+        <div class="blog-info">
+            <p><strong>Written by:</strong> <%= blog.createdBy.email %></p>
+            <p><small><strong>Published on:</strong> <%= blog.createdAt.toLocaleString() %></small></p>
+        </div>
 
         <!-- Conditionally display Edit and Delete links only for the blog creator -->
         <% if (user && blog.createdBy._id.toString() === user._id.toString()) { %>
-            <!-- Edit and Delete links, only visible to the blog creator -->
-            <a href="/blog/edit/<%= blog._id %>" class="btn btn-warning">Edit Blog</a>
-
-            <!-- Delete blog form with confirmation prompt -->
-            <form action="/blog/delete/<%= blog._id %>" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
-                <button type="submit" class="btn btn-danger">Delete Blog</button>
-            </form>
+            <div class="action-buttons">
+                <a href="/blog/edit/<%= blog._id %>" class="btn btn-warning">Edit Blog</a>
+                <!-- Delete form with confirmation prompt -->
+                <form action="/blog/delete/<%= blog._id %>" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
+                    <button type="submit" class="btn btn-danger">Delete Blog</button>
+                </form>
+            </div>
         <% } %>
 
         <!-- Back to Home button -->
-        <a href="/" class="btn btn-primary">Back to Home</a>
+        <a href="/" class="btn btn-primary mt-4">Back to Home</a>
     </div>
 
     <script>

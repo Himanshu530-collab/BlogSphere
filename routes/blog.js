@@ -62,7 +62,13 @@ router.get("/:id", async (req, res) => {
 // Fetch all blogs and display on the home page (GET route)
 router.get("/", async (req, res) => {
   try {
-    const blogs = await Blog.find().populate('createdBy', 'email profileImageURL');
+    // Fetch blogs, sorted by 'createdAt' in descending order (most recent first)
+    const blogs = await Blog.find()
+                            .populate('createdBy', 'email profileImageURL')
+                            .sort({ createdAt: -1 }) // Sort blogs by creation date, newest first
+                            .exec(); // Ensure the query is executed
+
+
     return res.render('home', {
       blogs,  // Pass the fetched blogs to the view
       user: req.user,  // Pass user data
@@ -72,6 +78,7 @@ router.get("/", async (req, res) => {
     res.status(500).send("Error fetching blogs");
   }
 });
+
 
 // Add a new blog (POST route) with file upload and error handling
 router.post("/add-new", authenticate, (req, res) => {
