@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 // Multer configuration with file size limit of 15KB
 const upload = multer({
   storage,
-  limits: { fileSize: 15 * 1024 }, // 15KB limit
+  limits: { fileSize: 50 * 1024 }, // 50KB limit
 });
 
 // Show the form to add a new blog (GET route)
@@ -132,7 +132,7 @@ router.post("/add-new", authenticate, (req, res) => {
         const outputPath = path.join(__dirname, '../public/images/', 'resized-' + req.file.filename);
 
         await sharp(inputPath)
-          .resize(800, 600)
+          .resize(800)
           .toFile(outputPath);
 
         fs.unlinkSync(inputPath);
