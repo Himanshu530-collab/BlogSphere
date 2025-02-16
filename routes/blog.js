@@ -38,40 +38,41 @@ router.get("/add-new", authenticate, (req, res) => {
   });
 });
 
-// View a single blog (GET route)
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // Fetch the blog with its comments and populate 'createdBy' field
     const blog = await Blog.findById(id)
-      .populate('createdBy', 'email profileImageURL')  // Populate the blog creator
+      .populate('createdBy', 'email profileImageURL')
       .populate({
-        path: 'comments',  // Populate the comments array
-        populate: { path: 'createdBy', select: 'email' }  // Populate the creator for each comment
+        path: 'comments',
+        populate: { path: 'createdBy', select: 'email' }
       });
 
     if (!blog) {
       return res.status(404).send("Blog not found");
     }
 
-    // Ensure comments have a default createdBy if missing
+    // Sanitize comments (ensure they always have a 'createdBy')
     const comments = blog.comments.map(comment => ({
       ...comment.toObject(),
-      createdBy: comment.createdBy || { email: 'Unknown user' },  // Fallback if createdBy is missing
+      createdBy: comment.createdBy || { email: 'Unknown user' },
     }));
 
-    // Pass the blog, sanitized comments, user, and isSingleBlogPage flag to the template
+    // Ensure 'user' is passed from req.user (which will be null if not logged in)
     return res.render("singleBlog", {
       blog,
-      comments,  // Pass the sanitized comments
+      comments,
       isSingleBlogPage: true,
-      user: req.user  // Pass the logged-in user (if any)
+      user: req.user || null, // Pass the user data or null if not logged in
     });
   } catch (error) {
     console.error("Error fetching blog:", error);
     res.status(500).send("Error fetching blog");
   }
 });
+
+
+
 
 
 // Fetch all blogs and display on the home page (GET route)

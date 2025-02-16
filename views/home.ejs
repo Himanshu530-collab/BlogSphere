@@ -79,13 +79,9 @@
 
     <div class="container mt-4">
         <h1>Welcome to the Homepage!</h1>
-
-        <% if (!user) { %>
-            <p>Please sign in to view your profile.</p>
-        <% } else { %>
+    
+        <% if (user) { %>
             <h3>Latest Blogs</h3>
-
-            <!-- Blog cards in a responsive grid layout -->
             <div class="row">
                 <% blogs.forEach(blog => { %>
                     <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4"> <!-- Responsive columns -->
@@ -94,13 +90,13 @@
                             <div class="card-body">
                                 <h5 class="card-title"><%= blog.title %></h5>
                                 <p class="card-text"><%= blog.body.slice(0, 100) %>...</p>
-
+    
                                 <div class="button-container">
                                     <!-- View button -->
                                     <a href="/blog/<%= blog._id %>" class="btn btn-primary btn-container-primary">View</a>
-
+    
                                     <!-- Edit and Delete links, only visible to the blog creator -->
-                                    <% if (user && blog.createdBy._id.toString() === user._id.toString()) { %>
+                                    <% if (blog.createdBy._id.toString() === user._id.toString()) { %>
                                         <div class="button-container">
                                             <a href="/blog/edit/<%= blog._id %>" class="btn btn-warning">Edit Blog</a>
                                             <form action="/blog/delete/<%= blog._id %>" method="POST" style="display:inline;">
@@ -114,9 +110,26 @@
                     </div>
                 <% }) %>
             </div>
+        <% } else { %>
+            <h3>Latest Blogs</h3>
+            <div class="row">
+                <% blogs.forEach(blog => { %>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+                        <div class="card">
+                            <img src="<%= blog.coverImageURL || '/images/default.png' %>" class="card-img-top" alt="Blog Image">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= blog.title %></h5>
+                                <p class="card-text"><%= blog.body.slice(0, 100) %>...</p>
+    
+                                <a href="/blog/<%= blog._id %>" class="btn btn-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
         <% } %>
     </div>
-
+    
     <%- include('./partials/scripts') %>
 
     <!-- Bootstrap JS and dependencies -->

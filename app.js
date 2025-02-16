@@ -36,26 +36,36 @@ app.use(express.json());  // Middleware for parsing JSON bodies
 
 // Home route
 app.get("/", async (req, res) => {
-    const token = req.cookies.authToken;
-
-    if (!token) {
-        return res.render("home", { user: null, blogs: [] });  // No user, render home without user data and empty blog list
-    }
+    const token = req.cookies.authToken;  // Check for token in cookies
 
     try {
-        const decoded = validateToken(token); // Validate token and decode it
-        if (!decoded) {
-            return res.redirect("/user/signin");  // Redirect to signin if token is invalid
-        }
+        // If a token is present, validate it
+        if (token) {
+            const decoded = validateToken(token);  // Validate and decode the token
+            if (!decoded) {
+                // If token is invalid, clear it and proceed to render the homepage without user info
+                res.clearCookie('authToken');
+                const blogs = await Blog.find().sort({ createdAt: -1 });  // Fetch blogs
+                return res.render("home", { user: null, blogs });  // Render home with no user data
+            }
 
-        // Fetch all blogs from the database to display on the homepage
-        const blogs = await Blog.find();  // Fetching all blogs from the database
-        return res.render("home", { user: decoded, blogs }); // Pass the user data and blogs to home.ejs
+            // Token is valid, pass user data and blogs to home page
+            const blogs = await Blog.find().sort({ createdAt: -1 });  // Fetch and sort blogs
+            return res.render("home", { user: decoded, blogs });  // Render home with user data and blogs
+        } else {
+            // No token means the user is unauthenticated, render blogs without user data
+            const blogs = await Blog.find().sort({ createdAt: -1 });
+            return res.render("home", { user: null, blogs });  // Render home without user data
+        }
     } catch (error) {
-        console.error("Invalid token:", error);
-        return res.redirect("/user/signin");  // Redirect to signin if token is invalid
+        console.error("Error during token validation:", error);
+        // In case of an error, render the home page with no user data and no blogs
+        const blogs = await Blog.find().sort({ createdAt: -1 });
+        return res.render("home", { user: null, blogs });
     }
 });
+
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // User routes
