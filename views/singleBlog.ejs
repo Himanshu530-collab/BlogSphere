@@ -108,10 +108,14 @@
                         <li class="mb-3">
                             <% if (comment.createdBy && comment.createdBy._id) { %>
                                 <p><strong><%= comment.createdBy.email %>:</strong> <%= comment.text %></p>
+
                                 <% if (user && comment.createdBy._id.toString() === user._id.toString()) { %>
-                                    <form action="/comments/delete/<%= comment._id %>" method="POST">
+                                    <!-- Delete Button -->
+                                    <form action="/comments/delete/<%= comment._id %>" method="POST" style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                     </form>
+                                    <!-- Edit Button -->
+                                    <a href="/comments/edit/<%= comment._id %>" class="btn btn-warning btn-sm ml-2">Edit</a>
                                 <% } %>
                             <% } else { %>
                                 <p><em>Unknown user:</em> <%= comment.text %></p>

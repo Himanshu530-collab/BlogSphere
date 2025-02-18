@@ -1,0 +1,35 @@
+<!-- editComment.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/head') %>
+    <title>Edit Comment</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('./partials/nav') %>
+
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-header text-center font-weight-bold">
+                Edit Comment
+            </div>
+            <div class="card-body">
+                <!-- Edit Comment Form -->
+                <form action="/comments/update/<%= comment._id %>" method="POST">
+                    <div class="form-group">
+                        <label for="text">Comment Text</label>
+                        <textarea class="form-control" id="text" name="text" rows="4" required><%= comment.text %></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Update Comment</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Back to Blog Button -->
+        <a href="/blog/<%= comment.blog %>" class="btn btn-secondary mt-3">Back to Blog</a>
+    </div>
+
+    <%- include('./partials/scripts') %>
+</body>
+</html>

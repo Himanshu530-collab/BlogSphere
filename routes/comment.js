@@ -39,6 +39,29 @@ router.post('/:blogId/add', authenticate, async (req, res) => {
     res.status(500).send("Error adding comment");
   }
 });
+// Render the edit comment page (GET route)
+router.get('/edit/:commentId', authenticate, async (req, res) => {
+  const { commentId } = req.params;
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).send('Comment not found');
+    }
+
+    // Ensure the user is the creator of the comment
+    if (comment.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).send('Unauthorized');
+    }
+
+    // Render the edit comment form with the existing comment text
+    res.render('editComment', { comment });
+  } catch (error) {
+    console.error("Error rendering edit comment page:", error);
+    res.status(500).send('Error rendering edit comment page');
+  }
+});
+
 
 // Delete a comment (POST route)
 router.post('/delete/:commentId', authenticate, async (req, res) => {
