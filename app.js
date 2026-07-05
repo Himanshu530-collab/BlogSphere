@@ -1,89 +1,88 @@
-
-require('dotenv').config();  // Add this at the top of your file to load the .env variables
+require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
-const Blog = require("./models/blog");
-  // Add this line to import the Blog model
 const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser"); // Import cookie-parser
-const { validateToken } = require("./services/authentication"); // Import validateToken from authentication.js
+const cookieParser = require("cookie-parser");
+
+const Blog = require("./models/blog");
+const { validateToken } = require("./services/authentication");
+
+const userRoute = require("./routes/user");
+const commentRoute = require("./routes/comment");
+const blogRoute = require("./routes/blog");
 
 const app = express();
-//const sharp = require("sharp");
-
 const port = process.env.PORT || 3000;
-// Middleware setup
-app.use(cookieParser()); // Enable cookie parsing globally
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI2)
-  .then(() => {
-    console.log("MongoDB Connected");
+// ================= MIDDLEWARE =================
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-    app.listen(port, () => {
-      console.log(`Server started at http://localhost:${port}`);
-    });
-  })
-  .catch(err => {
-    console.error("MongoDB connection failed:", err);
-  });
-const userRoute = require('./routes/user');
-const commentRoute = require('./routes/comment'); // Add this line for comments
-
-const blogRoute = require("./routes/blog");  // Ensure the blog route is required
-
-// Set up the view engine to use EJS
+// ================= VIEW ENGINE =================
 app.set("view engine", "ejs");
-
-// Set the directory for views
 app.set("views", path.resolve("./views"));
-app.use(express.urlencoded({ extended: true }));  // Middleware for parsing URL-encoded form data
-app.use(express.json());  // Middleware for parsing JSON bodies
 
-// Home route
-app.get("/", async (req, res) => {
-    const token = req.cookies.authToken;  // Check for token in cookies
-
+// ================= DB CONNECTION FUNCTION =================
+async function connectDB() {
     try {
-        // If a token is present, validate it
-        if (token) {
-            const decoded = validateToken(token);  // Validate and decode the token
-            if (!decoded) {
-                // If token is invalid, clear it and proceed to render the homepage without user info
-                res.clearCookie('authToken');
-                const blogs = await Blog.find().sort({ createdAt: -1 });  // Fetch blogs
-                return res.render("home", { user: null, blogs });  // Render home with no user data
-            }
+        await mongoose.connect(process.env.MONGO_URI2);
+        console.log("✅ MongoDB Connected");
+    } catch (err) {
+        console.error("❌ MongoDB connection failed:", err);
+        process.exit(1);
+    }
+}
 
-            // Token is valid, pass user data and blogs to home page
-            const blogs = await Blog.find().sort({ createdAt: -1 });  // Fetch and sort blogs
-            return res.render("home", { user: decoded, blogs });  // Render home with user data and blogs
-        } else {
-            // No token means the user is unauthenticated, render blogs without user data
-            const blogs = await Blog.find().sort({ createdAt: -1 });
-            return res.render("home", { user: null, blogs });  // Render home without user data
+// ================= GLOBAL BLOG FETCH HELPER =================
+async function getBlogs() {
+    try {
+        return await Blog.find().sort({ createdAt: -1 });
+    } catch (err) {
+        console.error("❌ Error fetching blogs:", err);
+        return [];
+    }
+}
+
+// ================= HOME ROUTE =================
+app.get("/", async (req, res) => {
+    try {
+        const token = req.cookies.authToken;
+        let user = null;
+
+        if (token) {
+            const decoded = validateToken(token);
+
+            if (decoded) {
+                user = decoded;
+            } else {
+                res.clearCookie("authToken");
+            }
         }
+
+        const blogs = await getBlogs();
+        return res.render("home", { user, blogs });
+
     } catch (error) {
-        console.error("Error during token validation:", error);
-        // In case of an error, render the home page with no user data and no blogs
-        const blogs = await Blog.find().sort({ createdAt: -1 });
-        return res.render("home", { user: null, blogs });
+        console.error("❌ Home route error:", error);
+        return res.render("home", { user: null, blogs: [] });
     }
 });
 
+// ================= ROUTES =================
+app.use("/user", userRoute);
+app.use("/comments", commentRoute);
+app.use("/blog", blogRoute);
 
-app.use(express.static(path.join(__dirname, 'public')));
+// ================= START SERVER =================
+async function startServer() {
+    await connectDB();
 
-// User routes
-app.use('/user', userRoute);
-app.use('/comments', commentRoute);  // Add this line for comments route
+    app.listen(port, () => {
+        console.log(`🚀 Server running at http://localhost:${port}`);
+    });
+}
 
-
-// Blog routes
-app.use("/blog", blogRoute);  // This will handle /blog/add-new and other blog-related routes
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server started at http://localhost:${port}`);
-});
+startServer();
