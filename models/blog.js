@@ -6,27 +6,38 @@ const blogSchema = new Schema(
       type: String,
       required: true,
     },
+
     body: {
       type: String,
       required: true,
     },
+
+    // Cloudinary Image URL
     coverImageURL: {
       type: String,
-      required: false,
+      default: "",
     },
+
+    // Cloudinary Public ID (used for deleting/replacing images)
+    coverImagePublicId: {
+      type: String,
+      default: "",
+    },
+
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Correct reference to "User" model with uppercase 'U'
-      required: true, // Ensure a blog must have an author
+      ref: "User",
+      required: true,
     },
-    comments: [{ 
-      type: Schema.Types.ObjectId, 
-      ref: "Comment" // Add the comments field as an array of references to Comment
-    }],
+
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
   },
-  { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
+  { timestamps: true }
 );
 
-const Blog = model("Blog", blogSchema);
-
-module.exports = Blog;
+module.exports = model("Blog", blogSchema);

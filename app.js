@@ -1,3 +1,4 @@
+
 require('dotenv').config();  // Add this at the top of your file to load the .env variables
 
 const express = require("express");
@@ -9,15 +10,14 @@ const cookieParser = require("cookie-parser"); // Import cookie-parser
 const { validateToken } = require("./services/authentication"); // Import validateToken from authentication.js
 
 const app = express();
-const sharp = require("sharp");
+//const sharp = require("sharp");
 
-const port = process.env.PORT 
-
+const port = process.env.PORT || 3000;
 // Middleware setup
 app.use(cookieParser()); // Enable cookie parsing globally
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI2)
     .then(e => console.log("MongoDB Connected"))
     .catch(err => console.error("MongoDB connection failed:", err));
 

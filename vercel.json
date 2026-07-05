@@ -1,37 +1,15 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "app.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "/api/$1"
-      },
-      {
-        "src": "/blog/(.*)",
-        "dest": "/blog/$1"
-      },
-      {
-        "src": "/comments/(.*)",
-        "dest": "/comments/$1"
-      },
-      {
-        "src": "/user/(.*)",
-        "dest": "/user/$1"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/app.js"
-      }
-    ],
-    "env": {
-      "MONGO_URI": "your_mongo_uri_here",  
-      "PORT": "3000",  
-      "JWT_SECRET": "your_jwt_secret_here" 
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
     }
-  }
-  
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/app.js"
+    }
+  ]
+}
