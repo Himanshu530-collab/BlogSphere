@@ -18,9 +18,16 @@ app.use(cookieParser()); // Enable cookie parsing globally
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI2)
-    .then(e => console.log("MongoDB Connected"))
-    .catch(err => console.error("MongoDB connection failed:", err));
+  .then(() => {
+    console.log("MongoDB Connected");
 
+    app.listen(port, () => {
+      console.log(`Server started at http://localhost:${port}`);
+    });
+  })
+  .catch(err => {
+    console.error("MongoDB connection failed:", err);
+  });
 const userRoute = require('./routes/user');
 const commentRoute = require('./routes/comment'); // Add this line for comments
 
